@@ -14,11 +14,12 @@ const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
 router.param("userId", getUserById);
 
 router.get("/user/:userId", isSignedIn, isAuthenticated,getUser);
-router.get("/user", getAllUsers);
-router.put("/user/:userId", isSignedIn, isAuthenticated, updateUser);
+router.get("/user",isSignedIn, getAllUsers);
+router.put("/user/:userId", isSignedIn,  updateUser);
 
 router.delete(
   "/user/:userId",
+  isSignedIn,
   deleteUser
 );
 

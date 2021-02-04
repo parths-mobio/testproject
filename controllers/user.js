@@ -19,14 +19,22 @@ exports.getUser = (req, res) => {
 };
 
 exports.getAllUsers = (req, res) => {
-  User.find().exec((err, users) => {
-    if (err || !users) {
-      return res.status(400).json({
-        error: "No userfound",
-      });
-    }
-    res.json(users);
-  });
+  let limit = req.query.limit ? parseInt(req.query.limit) : 5;
+  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
+
+  User.find()
+    .sort([[sortBy, "asc"]])
+    .limit(limit)
+    .exec((err, users) => {
+      if (err || !users) {
+        return res.status(400).json({
+          error: "No userfound",
+        });
+      }
+      // users.salt = undefined;
+      // users.encry_password = undefined;
+      res.json(users);
+    });
 };
 
 exports.updateUser = (req, res) => {
@@ -47,17 +55,16 @@ exports.updateUser = (req, res) => {
   );
 };
 exports.deleteUser = (req, res) => {
- const user = req.profile._id;
+  const user = req.profile._id;
   User.findById(user).remove((err, deletedUser) => {
     if (err) {
       return res.status(400).json({
-        error: "Failed to delete the User"
+        error: "Failed to delete the User",
       });
     }
     res.json({
       message: "Successfully deleted",
-      deletedUser
-      
+      deletedUser,
     });
   });
 };

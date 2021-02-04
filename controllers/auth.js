@@ -69,9 +69,10 @@ exports.signout = (req, res) => {
 };
 
 //protected routes
-exports.isSignedIn = expressJwt({
+exports.isSignedIn =  expressJwt({
   secret: process.env.SECRET,
   userProperty: "auth",
+  
 });
 
 //custom middlewares
@@ -87,7 +88,7 @@ exports.isAuthenticated = (req, res, next) => {
 };
 
 exports.isAdmin = (req, res, next) => {
-  if (req.profile.role === 'user') {
+  if (req.profile.role == 'user') {
     return res.status(403).json({
       error: "You are not ADMIN, Access denied",
     });
