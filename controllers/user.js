@@ -21,9 +21,12 @@ exports.getUser = (req, res) => {
 exports.getAllUsers = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 5;
   let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
-
-  User.find()
-    .sort([[sortBy, "asc"]])
+  let sortOrder = req.query.OrderBy && req.query.OrderBy === "desc" ? -1 : 1;
+  var usersearch = new RegExp(req.query.name, "i");
+  var addresssearch = new RegExp(req.query.address, "i");
+  var rolesearch = new RegExp(req.query.role, "i");
+  User.find({ name: usersearch, address: addresssearch, role: rolesearch })
+    .sort([[sortBy, sortOrder]])
     .limit(limit)
     .exec((err, users) => {
       if (err || !users) {
@@ -31,8 +34,7 @@ exports.getAllUsers = (req, res) => {
           error: "No userfound",
         });
       }
-      // users.salt = undefined;
-      // users.encry_password = undefined;
+
       res.json(users);
     });
 };

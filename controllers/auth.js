@@ -1,7 +1,9 @@
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
+
 var jwt = require("jsonwebtoken");
 var expressJwt = require("express-jwt");
+const { Error } = require("mongoose");
 
 exports.signup = (req, res) => {
   const errors = validationResult(req);
@@ -40,13 +42,17 @@ exports.signin = (req, res) => {
   User.findOne({ email }, (err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: "USER email does not exists",
+        status: "Error",
+        statusCode: 400,
+        message: "USER email does not exists",
       });
     }
 
     if (!user.autheticate(password)) {
       return res.status(401).json({
-        error: "Email and password do not match",
+        status: "Error",
+        statusCode: 401,
+        message: "Email and password do not match",
       });
     }
 
@@ -69,10 +75,9 @@ exports.signout = (req, res) => {
 };
 
 //protected routes
-exports.isSignedIn =  expressJwt({
+exports.isSignedIn = expressJwt({
   secret: process.env.SECRET,
   userProperty: "auth",
-  
 });
 
 //custom middlewares
@@ -88,7 +93,7 @@ exports.isAuthenticated = (req, res, next) => {
 };
 
 exports.isAdmin = (req, res, next) => {
-  if (req.profile.role == 'user') {
+  if (req.profile.role == "user") {
     return res.status(403).json({
       error: "You are not ADMIN, Access denied",
     });
