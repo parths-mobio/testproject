@@ -18,13 +18,19 @@ exports.signup = (req, res) => {
   user.save((err, user) => {
     if (err) {
       return res.status(400).json({
+        Status: "Error",
+        statusCode: 400,
         err: "Not able to save User",
       });
     }
     res.json({
-      name: user.name,
-      email: user.email,
-      id: user._id,
+      status: "Success",
+      statusCode: 200,
+      user: {
+        name: user.name,
+        email: user.email,
+        id: user._id,
+      },
     });
   });
 };
@@ -63,7 +69,12 @@ exports.signin = (req, res) => {
 
     //send response to front end
     const { _id, name, email, role } = user;
-    return res.json({ token, user: { _id, name, email, role } });
+    return res.json({
+      status: "Success",
+      statusCode: 200,
+      token,
+      user: { _id, name, email, role },
+    });
   });
 };
 
@@ -85,6 +96,8 @@ exports.isAuthenticated = (req, res, next) => {
   let checker = req.profile && req.auth && req.profile._id == req.auth._id;
   if (!checker) {
     return res.status(403).json({
+      Status: "Error",
+      statusCode: 403,
       error: "ACCESS DENIED",
     });
   }
@@ -95,6 +108,8 @@ exports.isAuthenticated = (req, res, next) => {
 exports.isAdmin = (req, res, next) => {
   if (req.profile.role == "user") {
     return res.status(403).json({
+      Status: "Error",
+      statusCode: 403,
       error: "You are not ADMIN, Access denied",
     });
   }

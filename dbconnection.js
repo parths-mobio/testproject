@@ -4,7 +4,7 @@ var mysql=require('mysql');
 host:'localhost',
  user:'root',
  password:'',
- database:'priya_store',
+ database:'test',
  port:'3307'
 
 });

@@ -4,7 +4,9 @@ exports.getUserById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: "No user was found in DB",
+        status: "Error",
+        statusCode: 400,
+        message: "No user was found in DB",
       });
     }
     req.profile = user;
@@ -31,11 +33,17 @@ exports.getAllUsers = (req, res) => {
     .exec((err, users) => {
       if (err || !users) {
         return res.status(400).json({
-          error: "No userfound",
+          status: "Error",
+          statusCode: 400,
+          message: "No User Found",
         });
       }
 
-      res.json(users);
+      res.json({
+        status: "Success",
+        statusCode: 200,
+        message:users
+      });
     });
 };
 
@@ -47,7 +55,9 @@ exports.updateUser = (req, res) => {
     (err, user) => {
       if (err) {
         return res.status(400).json({
-          error: "You are not authorized to update this user",
+          status: "Error",
+          statusCode: 400,
+          message: "You are not authorized to update this user",
         });
       }
       user.salt = undefined;
@@ -61,10 +71,14 @@ exports.deleteUser = (req, res) => {
   User.findById(user).remove((err, deletedUser) => {
     if (err) {
       return res.status(400).json({
-        error: "Failed to delete the User",
+        status: "Error",
+        statusCode: 400,
+        message: "Failed to delete the User",
       });
     }
     res.json({
+      status: "Success",
+      statusCode: 200,
       message: "Successfully deleted",
       deletedUser,
     });

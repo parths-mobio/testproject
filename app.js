@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 dotenv.config();
 const authRoutes = require("./routes/auth");
+const itemRoutes = require('./routes/routes');
 const userRoutes = require("./routes/user");
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(cors());
 //Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
+app.use('/items', itemRoutes.routes);
 
 const port = process.env.PORT || 4000;
 app.use(cors());
@@ -36,17 +38,6 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-
-// error handler
-// app.use(function (err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get("env") === "development" ? err : {};
-
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render("error");
-// });
 
 app.listen(port, () => {
   console.log(`App is listining at ${port}`);
