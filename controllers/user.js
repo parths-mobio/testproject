@@ -1,4 +1,7 @@
 const User = require("../models/user");
+const formidable = require("formidable");
+const _ = require("lodash");
+const fs = require("fs");
 
 exports.getUserById = (req, res, next, id) => {
   User.findById(id).exec((err, user) => {
@@ -28,6 +31,9 @@ exports.getAllUsers = (req, res) => {
   var addresssearch = new RegExp(req.query.address, "i");
   var rolesearch = new RegExp(req.query.role, "i");
   User.find({ name: usersearch, address: addresssearch, role: rolesearch })
+    .select("-photo")
+    .select("-salt")
+    .select("-encry_password")
     .sort([[sortBy, sortOrder]])
     .limit(limit)
     .exec((err, users) => {
@@ -42,15 +48,64 @@ exports.getAllUsers = (req, res) => {
       res.json({
         status: "Success",
         statusCode: 200,
-        message:users
+        message: users,
       });
     });
 };
 
 exports.updateUser = (req, res) => {
-  User.findByIdAndUpdate(
+  // User.findByIdAndUpdate(
+  //   { _id: req.profile._id },
+  //   { $set: req.body },
+  //   { new: true, useFindAndModify: false },
+  //   (err, user) => {
+  //     if (err) {
+  //       return res.status(400).json({
+  //         status: "Error",
+  //         statusCode: 400,
+  //         message: "You are not authorized to update this user",
+  //       });
+  //     }
+  //     user.salt = undefined;
+  //     user.encry_password = undefined;
+  //     res.json({
+  //       status: "Success",
+  //       statusCode: 200,
+  //       message: "Successfully Updated",
+  //       user,
+  //     });
+  //   }
+  // );
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+
+  form.parse(req, (err, fields, file) => {
+    if (err) {
+      return res.status(400).json({
+        error: "problem with image"
+      });
+    }
+
+    //updation code
+    let user =req.user;
+    user = _.extend(user, fields);
+
+    //handle file here
+    if (file.photo) {
+      if (file.photo.size > 3000000) {
+        return res.status(400).json({
+          status: "Error",
+          statusCode: 400,
+          message: "File size too big!"
+        });
+      }
+      user.photo = fs.readFileSync(file.photo.path);
+      user.photo.contentType = file.photo.type;
+    }
+
+    User.findByIdAndUpdate(
     { _id: req.profile._id },
-    { $set: req.body },
+    { $set: user },
     { new: true, useFindAndModify: false },
     (err, user) => {
       if (err) {
@@ -62,9 +117,24 @@ exports.updateUser = (req, res) => {
       }
       user.salt = undefined;
       user.encry_password = undefined;
-      res.json(user);
+      res.json({
+        status: "Success",
+        statusCode: 200,
+        message: "Successfully Updated",
+        user,
+      });
     }
   );
+    
+    // user.save((err, user) => {
+    //   if (err) {
+    //     res.status(400).json({
+    //       error: "Updation of user failed"
+    //     });
+    //   }
+    //   res.json(user);
+    // });
+  });
 };
 exports.deleteUser = (req, res) => {
   const user = req.profile._id;

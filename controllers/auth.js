@@ -1,12 +1,34 @@
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
+const formidable = require("formidable");
+const _ = require("lodash");
+const fs = require("fs");
+
 
 var jwt = require("jsonwebtoken");
 var expressJwt = require("express-jwt");
 const { Error } = require("mongoose");
 
 exports.signup = (req, res) => {
-  const errors = validationResult(req);
+  
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  
+  
+
+  form.parse(req, (err, fields, file) => {
+    if (err) {
+      return res.status(400).json({
+        status: "Error",
+        statusCode: 400,
+        message: "problem with image"
+      });
+    }
+
+  
+
+  const { name, email, address, mobile, password, role } = fields;
+  const errors = validationResult(fields);
 
   if (!errors.isEmpty()) {
     return res.status(422).json({
@@ -14,7 +36,22 @@ exports.signup = (req, res) => {
     });
   }
 
-  const user = new User(req.body);
+  let user = new User(fields);
+
+  if (file.photo) {
+    if (file.photo.size > 3000000) {
+      return res.status(400).json({
+        status: "Error",
+        statusCode: 400,
+        message: "File size too big!"
+      });
+    }
+    user.photo.data = fs.readFileSync(file.photo.path);
+    user.photo.contentType = file.photo.type;
+  }
+
+  //const user = new User(req.body);
+ 
   user.save((err, user) => {
     if (err) {
       return res.status(400).json({
@@ -30,9 +67,11 @@ exports.signup = (req, res) => {
         name: user.name,
         email: user.email,
         id: user._id,
+       
       },
     });
   });
+});
 };
 
 exports.signin = (req, res) => {

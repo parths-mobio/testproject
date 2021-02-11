@@ -43,6 +43,10 @@ var userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
+    photo: {
+      data: Buffer,
+      contentType: String
+    },
   },
   { timestamps: true }
 );
