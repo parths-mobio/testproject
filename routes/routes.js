@@ -6,7 +6,7 @@ const readXlsxFile = require("read-excel-file/node");
 var item = require("../models/item");
 var connection = require("../dbconnection");
 const { isSignedIn } = require("../controllers/auth");
-router.get("/items",isSignedIn, function (req, res, next) {
+router.get("/item/export", isSignedIn, function (req, res, next) {
   item.getAllitem(function (err, customers, fields) {
     const jsonCustomers = JSON.parse(JSON.stringify(customers));
     console.log(jsonCustomers);
@@ -27,36 +27,38 @@ router.get("/items",isSignedIn, function (req, res, next) {
     worksheet.addRows(jsonCustomers);
 
     // Write to File
-    workbook.xlsx.writeFile("items.xlsx").then(function () {
+    workbook.xlsx.writeFile("item9.xlsx").then(function () {
       console.log("file saved!");
       res.json({
-        Status:"Success",
-        statuscode:200,
-        message:"Exported Successfully"
+        Status: "Success",
+        statuscode: 200,
+        message: "Exported Successfully",
+        rows:jsonCustomers,
+        file:req.file
       });
     });
   });
 });
 
-router.get("/import", isSignedIn ,function (req, res, next) {
+router.get("/import", isSignedIn, function (req, res, next) {
   readXlsxFile("item.xlsx").then((rows) => {
     console.log(rows);
     rows.shift();
     let query =
-      "INSERT INTO item (id, name, description, quantity, amount) VALUES ?";
+      "INSERT INTO item (name, description, quantity, amount) VALUES ?";
     connection.query(query, [rows], (error, response) => {
       console.log(error || response);
       if (error) {
-        res.send({
-          Status:"Error",
-          statuscode:400,
-          message:"Not Successfull"
+        res.json({
+          Status: "Error",
+          statuscode: 400,
+          message: "Not Successfull",
         });
       } else {
         res.json({
-          Status:"Success",
-          statuscode:200,
-          message:"Imported Successfully"
+          Status: "Success",
+          statuscode: 200,
+          message: "Imported Successfully",
         });
       }
     });
@@ -78,23 +80,30 @@ const upload = multer({
   storage: storage,
 });
 
-router.post("/upload", isSignedIn ,upload.single("uploadfile"), (req, res) => {
+router.post("/item/upload", isSignedIn, upload.single("uploadfile"), (req, res) => {
   importExcelData2MySQL(__basedir + "/uploads/" + req.file.filename);
-
-  res.json({
-    msg: "File uploaded/import successfully!",
-    file: req.file,
-  });
+  // res.json({
+  //   msg: "File uploaded/import successfully!",
+  //   file: req.file,
+  // });
 
   function importExcelData2MySQL(filePath) {
     var allowedExtensions = /(\.xlsx)$/i;
     if (!allowedExtensions.exec(filePath)) {
       console.log("File Type Error");
-      res.send("File Type Error");
+      res.json({
+        Status: "Error",
+        statuscode: 400,
+        message: "File Type Error",
+      });
     }
     if (req.file.size > 10000) {
       console.log("File Size is too large. Allowed file size is 100KB");
-      res.send("File Size is too large. Allowed file size is 100KB");
+      res.json({
+        Status: "Error",
+        statuscode: 400,
+        message: "File Size is too large. Allowed file size is 100KB",
+      });
     }
 
     readXlsxFile(filePath).then((rows) => {
@@ -102,9 +111,25 @@ router.post("/upload", isSignedIn ,upload.single("uploadfile"), (req, res) => {
       rows.shift();
 
       let query =
-        "INSERT INTO item (id, name, description, quantity, amount) VALUES ?";
+        "INSERT INTO item (name, description, quantity, amount) VALUES ?";
       connection.query(query, [rows], (error, response) => {
         console.log(error || response);
+        if (error) {
+          res.json({
+            Status: "Error",
+            statuscode: 400,
+            message: error,
+            file: req.file,
+          });
+        } else {
+          res.json({
+            Status: "Success",
+            statuscode: 200,
+            message: response,
+            rows: rows,
+            file: req.file,
+          });
+        }
       });
     });
   }

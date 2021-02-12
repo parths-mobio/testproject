@@ -9,7 +9,7 @@ var item={
     },
     addItem:function(callback)
     {
-     return db.query('INSERT INTO item (id, name, description, quantity, amount) VALUES ?',callback);
+     return db.query('INSERT INTO item (name, description, quantity, amount) VALUES ?',callback);
     }
 };
 module.exports=item;

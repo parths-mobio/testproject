@@ -5,7 +5,7 @@ const { signout, signup, signin } = require("../controllers/auth");
 const { isSignedIn, isAdmin, isAuthenticated } = require("../controllers/auth");
 
 router.post(
-  "/createuser",
+  "/user/createuser",
   [
     check("name", {
       Status: "Error",
@@ -37,7 +37,7 @@ router.post(
 );
 
 router.post(
-  "/signin",
+  "/auth/signin",
   [
     check("email", "email is required").isEmail(),
     check("password", "password field is required").isLength({ min: 1 }),

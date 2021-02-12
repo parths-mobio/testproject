@@ -20,7 +20,10 @@ exports.getUserById = (req, res, next, id) => {
 exports.getUser = (req, res) => {
   req.profile.salt = undefined;
   req.profile.encry_password = undefined;
-  return res.json(req.profile);
+  return res.json({
+    status: "Success",
+        statusCode: 200,
+    Data:req.profile});
 };
 
 exports.getAllUsers = (req, res) => {
@@ -48,55 +51,33 @@ exports.getAllUsers = (req, res) => {
       res.json({
         status: "Success",
         statusCode: 200,
-        message: users,
+        Data: users,
       });
     });
 };
 
 exports.updateUser = (req, res) => {
-  // User.findByIdAndUpdate(
-  //   { _id: req.profile._id },
-  //   { $set: req.body },
-  //   { new: true, useFindAndModify: false },
-  //   (err, user) => {
-  //     if (err) {
-  //       return res.status(400).json({
-  //         status: "Error",
-  //         statusCode: 400,
-  //         message: "You are not authorized to update this user",
-  //       });
-  //     }
-  //     user.salt = undefined;
-  //     user.encry_password = undefined;
-  //     res.json({
-  //       status: "Success",
-  //       statusCode: 200,
-  //       message: "Successfully Updated",
-  //       user,
-  //     });
-  //   }
-  // );
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
 
   form.parse(req, (err, fields, file) => {
     if (err) {
       return res.status(400).json({
-        error: "problem with image"
+        status: "Error",
+        statusCode: 400,
+        message: "problem with image",
       });
     }
 
-    //updation code
-    let user =req.user;
+    let user = req.user;
     user = _.extend(user, fields);
 
-    //handle file here
     if (file.photo) {
       if (file.photo.size > 3000000) {
         return res.status(400).json({
           status: "Error",
           statusCode: 400,
-          message: "File size too big!"
+          message: "File size too big!",
         });
       }
       user.photo = fs.readFileSync(file.photo.path);
@@ -104,36 +85,27 @@ exports.updateUser = (req, res) => {
     }
 
     User.findByIdAndUpdate(
-    { _id: req.profile._id },
-    { $set: user },
-    { new: true, useFindAndModify: false },
-    (err, user) => {
-      if (err) {
-        return res.status(400).json({
-          status: "Error",
-          statusCode: 400,
-          message: "You are not authorized to update this user",
+      { _id: req.profile._id },
+      { $set: user },
+      { new: true, useFindAndModify: false },
+      (err, user) => {
+        if (err) {
+          return res.status(400).json({
+            status: "Error",
+            statusCode: 400,
+            message: "You are not authorized to update this user",
+          });
+        }
+        user.salt = undefined;
+        user.encry_password = undefined;
+        res.json({
+          status: "Success",
+          statusCode: 200,
+          message: "Successfully Updated",
+          data:user,
         });
       }
-      user.salt = undefined;
-      user.encry_password = undefined;
-      res.json({
-        status: "Success",
-        statusCode: 200,
-        message: "Successfully Updated",
-        user,
-      });
-    }
-  );
-    
-    // user.save((err, user) => {
-    //   if (err) {
-    //     res.status(400).json({
-    //       error: "Updation of user failed"
-    //     });
-    //   }
-    //   res.json(user);
-    // });
+    );
   });
 };
 exports.deleteUser = (req, res) => {

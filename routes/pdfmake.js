@@ -17,7 +17,11 @@ router.post("/pdf", async (req, res, next) => {
 
     const itemsArray = [];
     if (data.empty) {
-      res.status(404).send("No Item record found");
+      res.status(404).json({
+        Status: "Error",
+        statuscode: 400,
+        message:"No Item record found"
+      });
     } else {
       data.forEach((doc) => {
         const item = new Item(
