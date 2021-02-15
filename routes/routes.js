@@ -27,7 +27,7 @@ router.get("/item/export", isSignedIn, function (req, res, next) {
     worksheet.addRows(jsonCustomers);
 
     // Write to File
-    workbook.xlsx.writeFile("item9.xlsx").then(function () {
+    workbook.xlsx.writeFile("allitems.xlsx").then(function () {
       console.log("file saved!");
       res.json({
         Status: "Success",
