@@ -10,6 +10,7 @@ dotenv.config();
 const authRoutes = require("./routes/auth");
 const itemRoutes = require("./routes/routes");
 const userRoutes = require("./routes/user");
+const settingRoutes = require("./routes/setting");
 const app = express();
 const pdfRoute = require("./routes/pdfmake");
 
@@ -36,6 +37,7 @@ app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", itemRoutes.routes);
 app.use("/api/pdfMake", pdfRoute);
+app.use("/api",settingRoutes)
 
 const port = process.env.PORT || 4000;
 app.use(cors());

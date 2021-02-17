@@ -22,8 +22,9 @@ exports.getUser = (req, res) => {
   req.profile.encry_password = undefined;
   return res.json({
     status: "Success",
-        statusCode: 200,
-    Data:req.profile});
+    statusCode: 200,
+    Data: req.profile,
+  });
 };
 
 exports.getAllUsers = (req, res) => {
@@ -102,7 +103,7 @@ exports.updateUser = (req, res) => {
           status: "Success",
           statusCode: 200,
           message: "Successfully Updated",
-          data:user,
+          data: user,
         });
       }
     );

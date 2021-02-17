@@ -3,11 +3,8 @@ const { validationResult, check } = require("express-validator");
 const formidable = require("formidable");
 const _ = require("lodash");
 const fs = require("fs");
-
 var jwt = require("jsonwebtoken");
 var expressJwt = require("express-jwt");
-
-
 
 exports.signup = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -24,14 +21,7 @@ exports.signup = (req, res) => {
 
     const { name, email, address, mobile, password, role } = fields;
 
-    //const errors = validationResult(req.body);
     let user = new User(fields);
-
-    // if (!errors.isEmpty()) {
-    //   return res.status(422).json({
-    //     error: errors.array()[0].msg,
-    //   });
-    // }
 
     if (file.photo) {
       if (file.photo.size > 3000000) {
@@ -96,9 +86,11 @@ exports.signin = (req, res) => {
     }
 
     //create token
-    const token = jwt.sign({ _id: user._id }, process.env.SECRET);
+    const token = jwt.sign({ _id: user._id }, process.env.SECRET, {
+      expiresIn: "24h",
+    });
     //put token in cookie
-    res.cookie("token", token, { expire: new Date() + 9999 });
+    res.cookie("token", token);
 
     //send response to front end
     const { _id, name, email, role } = user;

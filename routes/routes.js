@@ -6,6 +6,7 @@ const readXlsxFile = require("read-excel-file/node");
 var item = require("../models/item");
 var connection = require("../dbconnection");
 const { isSignedIn } = require("../controllers/auth");
+const { path } = require("path");
 router.get("/item/export", isSignedIn, function (req, res, next) {
   item.getAllitem(function (err, customers, fields) {
     const jsonCustomers = JSON.parse(JSON.stringify(customers));
@@ -33,8 +34,8 @@ router.get("/item/export", isSignedIn, function (req, res, next) {
         Status: "Success",
         statuscode: 200,
         message: "Exported Successfully",
-        rows:jsonCustomers,
-        file:req.file
+        file: process.cwd(),
+        rows: jsonCustomers,
       });
     });
   });
@@ -80,60 +81,65 @@ const upload = multer({
   storage: storage,
 });
 
-router.post("/item/upload", isSignedIn, upload.single("uploadfile"), (req, res) => {
-  importExcelData2MySQL(__basedir + "/uploads/" + req.file.filename);
-  // res.json({
-  //   msg: "File uploaded/import successfully!",
-  //   file: req.file,
-  // });
+router.post(
+  "/item/upload",
+  isSignedIn,
+  upload.single("uploadfile"),
+  (req, res) => {
+    importExcelData2MySQL(__basedir + "/uploads/" + req.file.filename);
+    // res.json({
+    //   msg: "File uploaded/import successfully!",
+    //   file: req.file,
+    // });
 
-  function importExcelData2MySQL(filePath) {
-    var allowedExtensions = /(\.xlsx)$/i;
-    if (!allowedExtensions.exec(filePath)) {
-      console.log("File Type Error");
-      res.json({
-        Status: "Error",
-        statuscode: 400,
-        message: "File Type Error",
+    function importExcelData2MySQL(filePath) {
+      var allowedExtensions = /(\.xlsx)$/i;
+      if (!allowedExtensions.exec(filePath)) {
+        console.log("File Type Error");
+        res.json({
+          Status: "Error",
+          statuscode: 400,
+          message: "File Type Error",
+        });
+      }
+      if (req.file.size > 10000) {
+        console.log("File Size is too large. Allowed file size is 100KB");
+        res.json({
+          Status: "Error",
+          statuscode: 400,
+          message: "File Size is too large. Allowed file size is 100KB",
+        });
+      }
+
+      readXlsxFile(filePath).then((rows) => {
+        console.log(rows);
+        rows.shift();
+
+        let query =
+          "INSERT INTO item (name, description, quantity, amount) VALUES ?";
+        connection.query(query, [rows], (error, response) => {
+          console.log(error || response);
+          if (error) {
+            res.json({
+              Status: "Error",
+              statuscode: 400,
+              message: error,
+              file: req.file,
+            });
+          } else {
+            res.json({
+              Status: "Success",
+              statuscode: 200,
+              message: response,
+              rows: rows,
+              file: req.file,
+            });
+          }
+        });
       });
     }
-    if (req.file.size > 10000) {
-      console.log("File Size is too large. Allowed file size is 100KB");
-      res.json({
-        Status: "Error",
-        statuscode: 400,
-        message: "File Size is too large. Allowed file size is 100KB",
-      });
-    }
-
-    readXlsxFile(filePath).then((rows) => {
-      console.log(rows);
-      rows.shift();
-
-      let query =
-        "INSERT INTO item (name, description, quantity, amount) VALUES ?";
-      connection.query(query, [rows], (error, response) => {
-        console.log(error || response);
-        if (error) {
-          res.json({
-            Status: "Error",
-            statuscode: 400,
-            message: error,
-            file: req.file,
-          });
-        } else {
-          res.json({
-            Status: "Success",
-            statuscode: 200,
-            message: response,
-            rows: rows,
-            file: req.file,
-          });
-        }
-      });
-    });
   }
-});
+);
 
 module.exports = {
   routes: router,
