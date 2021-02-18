@@ -23,6 +23,7 @@ exports.getUser = (req, res) => {
   return res.json({
     status: "Success",
     statusCode: 200,
+    message: "Successfully Viewed",
     Data: req.profile,
   });
 };
@@ -52,6 +53,7 @@ exports.getAllUsers = (req, res) => {
       res.json({
         status: "Success",
         statusCode: 200,
+        message: "Successfully View",
         Data: users,
       });
     });

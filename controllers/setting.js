@@ -13,6 +13,7 @@ exports.createSetting = (req, res) => {
     res.json({
       status: "Success",
       statusCode: 200,
+      message: "Successfully Created",
       Data: setting,
     });
   });
@@ -42,6 +43,7 @@ exports.getAllSetting = (req, res) => {
       res.json({
         status: "Success",
         statusCode: 200,
+        message: "Successfully View",
         Data: setting,
       });
     });

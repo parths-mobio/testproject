@@ -48,6 +48,7 @@ exports.signup = (req, res) => {
       res.json({
         status: "Success",
         statusCode: 200,
+        message: "Successfully Created",
         user: {
           name: user.name,
           email: user.email,
@@ -98,6 +99,7 @@ exports.signin = (req, res) => {
       status: "Success",
       statusCode: 200,
       token,
+      message: "SignIn Successfully",
       user: { _id, name, email, role },
     });
   });
