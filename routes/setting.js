@@ -5,6 +5,8 @@ const {
   getAllSetting,
   updateSetting,
   removeSetting,
+  getSettingById,
+  getSetting,
 } = require("../controllers/setting");
 
 const { isSignedIn } = require("../controllers/auth");
@@ -16,5 +18,9 @@ router.post("/setting/create", isSignedIn, createSetting);
 router.put("/setting/update", isSignedIn, updateSetting);
 
 router.delete("/setting/delete", isSignedIn, removeSetting);
+
+router.param("settingId", getSettingById);
+
+router.get("/setting/view/:settingId", isSignedIn, getSetting);
 
 module.exports = router;

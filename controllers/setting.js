@@ -28,7 +28,6 @@ exports.getAllSetting = (req, res) => {
 
   Setting.find({ key: keysearch })
     .select("-_id")
-    //.select("-key")
     .select("-__v")
     .limit(limit)
     .sort([[sortBy, sortOrder]])
@@ -40,7 +39,6 @@ exports.getAllSetting = (req, res) => {
           message: "NO categories found",
         });
       }
-
       res.json({
         status: "Success",
         statusCode: 200,
@@ -93,5 +91,28 @@ exports.removeSetting = (req, res) => {
       message: "Successfully deleted",
       deletedSet,
     });
+  });
+};
+
+exports.getSettingById = (req, res, next, id) => {
+  Setting.findById(id).exec((err, set) => {
+    if (err) {
+      return res.status(400).json({
+        status: "Error",
+        statusCode: 400,
+        message: "Setting not found in DB",
+      });
+    }
+    req.setting = set;
+    next();
+  });
+};
+
+exports.getSetting = (req, res) => {
+  return res.json({
+    status: "Success",
+    statusCode: 200,
+    message: "Successfully Find",
+    data: req.setting,
   });
 };
