@@ -36,6 +36,7 @@ exports.getAllUsers = (req, res) => {
   var addresssearch = new RegExp(req.query.address, "i");
   var rolesearch = new RegExp(req.query.role, "i");
   User.find({ name: usersearch, address: addresssearch, role: rolesearch })
+    .populate("userAccess")
     .select("-photo")
     .select("-salt")
     .select("-encry_password")

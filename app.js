@@ -1,5 +1,4 @@
 const express = require("express");
-
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -11,8 +10,11 @@ const authRoutes = require("./routes/auth");
 const itemRoutes = require("./routes/routes");
 const userRoutes = require("./routes/user");
 const settingRoutes = require("./routes/setting");
+const roleRoutes = require("./routes/userRole");
 const app = express();
 const pdfRoute = require("./routes/pdfmake");
+const permissionRoute = require("./routes/userPermission");
+const accessRoute = require("./routes/userAccess");
 
 //DB Connection
 mongoose
@@ -37,10 +39,21 @@ app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", itemRoutes.routes);
 app.use("/api/pdfMake", pdfRoute);
-app.use("/api",settingRoutes)
+app.use("/api",settingRoutes);
+app.use("/api",roleRoutes);
+app.use("/api",permissionRoute);
+app.use("/api",accessRoute);
 
 const port = process.env.PORT || 4000;
 app.use(cors());
+
+app.use(function(req, res, next) {
+  res.header(
+    "Access-Control-Allow-Headers",
+    "x-access-token, Origin, Content-Type, Accept"
+  );
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World");

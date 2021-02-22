@@ -1,11 +1,11 @@
 var mongoose = require("mongoose");
 const crypto = require("crypto");
-const { Email } = require("read-excel-file/node");
+
 const { isEmail }= require('validator');
 
 //const uuid = require("uuid/package.json");
 
-//const { ObjectId } = mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
 var userSchema = new mongoose.Schema(
   {
@@ -46,6 +46,11 @@ var userSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
+    },
+    userAccess: {
+      type: ObjectId,
+      ref: "userAccess",
+      required: true,
     },
     photo: {
       data: Buffer,

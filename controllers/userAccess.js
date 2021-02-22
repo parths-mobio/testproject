@@ -1,59 +1,62 @@
-const Role = require("../models/userRole");
+const Access = require("../models/userAccess");
 
-exports.createRole = (req, res) => {
-  const role = new Role(req.body);
-  role.save((err, role) => {
+exports.createAccess = (req, res) => {
+  const useraccess = new Access(req.body);
+  useraccess.save((err, acces) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
         statusCode: 400,
-        message: "NOT able to save Role in DB",
+        message: "NOT able to save UserAccess in DB",
       });
     }
     res.json({
       status: "Success",
       statusCode: 200,
       message: "Successfully Created",
-      Data: role,
+      Data: acces,
     });
   });
 };
 
-exports.getAllRoles = (req, res) => {
-Role.find()
+exports.getAllAccess = (req, res) => {
+  Access.find()
+    .populate("role")
+    .populate("permission")
     .select("-__v")
-    .exec((err, role) => {
+    .exec((err, access) => {
       if (err) {
         return res.status(400).json({
           status: "Error",
           statuscode: 400,
-          message: "NO role found",
+          message: "NO UserAccess found",
         });
       }
       res.json({
         status: "Success",
         statusCode: 200,
         message: "Successfully View",
-        Data: role,
+        Data: access,
       });
     });
 };
 
-exports.updateRoles = (req, res) => {
-  const rl = req.query.id;
-  let role = req.role;
-  role = req.body;
+exports.updateAccess = (req, res) => {
+  const access = req.query.id;
+  let useraccess = req.useraccess;
+  useraccess = req.body;
 
-  Role.findByIdAndUpdate(
-    { _id: rl },
-    { $set: role },
+  Access.findByIdAndUpdate(
+    { _id: access },
+    { $set: useraccess },
     { new: true, useFindAndModify: false },
-    (err, role) => {
+    (err, access) => {
       if (err) {
         return res.status(400).json({
           status: "Error",
           statusCode: 400,
-          message: "You are not authorized to update this role",
+          message: "You are not authorized to update this userAccess",
+          Error:err
         });
       }
 
@@ -61,28 +64,27 @@ exports.updateRoles = (req, res) => {
         status: "Success",
         statusCode: 200,
         message: "Successfully Updated",
-        data: role,
+        data: access,
       });
     }
   );
 };
 
-exports.removeRole = (req, res) => {
-  const rl = req.query.id;
-  Role.findById(rl).remove((err, deletedRole) => {
+exports.removeAccess = (req, res) => {
+  const access = req.query.id;
+  Access.findById(access).remove((err, deletedAccess) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
         statusCode: 400,
-        message: "Failed to delete the Role",
+        message: "Failed to delete the Access",
       });
     }
     res.json({
       status: "Success",
       statusCode: 200,
       message: "Successfully deleted",
-      deletedRole,
+      deletedAccess,
     });
   });
 };
-

@@ -9,7 +9,6 @@ var expressJwt = require("express-jwt");
 exports.signup = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
-
   form.parse(req, (err, fields, file) => {
     if (err) {
       return res.status(400).json({
@@ -53,6 +52,7 @@ exports.signup = (req, res) => {
           name: user.name,
           email: user.email,
           id: user._id,
+          AccessId: user.userAccess,
         },
       });
     });
@@ -113,10 +113,34 @@ exports.signout = (req, res) => {
 };
 
 //protected routes
-exports.isSignedIn = expressJwt({
-  secret: process.env.SECRET,
-  userProperty: "auth",
-});
+// exports.isSignedIn = expressJwt({
+//   secret: process.env.SECRET,
+//   userProperty: "auth",
+// });
+
+exports.isSignedIn = (req, res, next) => {
+  let token = req.headers["x-access-token"];
+
+  if (!token) {
+    return res.status(403).json({
+      Status: "Error",
+      statusCode: 403,
+      message: "No Token Provided",
+    });
+  }
+
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({
+        Status: "Error",
+        statusCode: 401,
+        message: "Invalid Token",
+      });
+    }
+    //req.userId = decoded.id;
+    next();
+  });
+};
 
 //custom middlewares
 exports.isAuthenticated = (req, res, next) => {
@@ -128,7 +152,6 @@ exports.isAuthenticated = (req, res, next) => {
       error: "ACCESS DENIED",
     });
   }
-
   next();
 };
 

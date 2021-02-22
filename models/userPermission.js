@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userRoleSchema = new mongoose.Schema({
+const userPermissionSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -12,4 +12,4 @@ const userRoleSchema = new mongoose.Schema({
 { timestamps: true }
 );
 
-module.exports = mongoose.model("userRole", userRoleSchema);
+module.exports = mongoose.model("userPermission", userPermissionSchema);

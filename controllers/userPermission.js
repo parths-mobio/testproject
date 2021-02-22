@@ -1,59 +1,59 @@
-const Role = require("../models/userRole");
+const Permission = require("../models/userPermission");
 
-exports.createRole = (req, res) => {
-  const role = new Role(req.body);
-  role.save((err, role) => {
+exports.createPermission = (req, res) => {
+  const permission = new Permission(req.body);
+  permission.save((err, perm) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
         statusCode: 400,
-        message: "NOT able to save Role in DB",
+        message: "NOT able to save Permission in DB",
       });
     }
     res.json({
       status: "Success",
       statusCode: 200,
       message: "Successfully Created",
-      Data: role,
+      Data: perm,
     });
   });
 };
 
-exports.getAllRoles = (req, res) => {
-Role.find()
+exports.getAllPermissions = (req, res) => {
+Permission.find()
     .select("-__v")
-    .exec((err, role) => {
+    .exec((err, perm) => {
       if (err) {
         return res.status(400).json({
           status: "Error",
           statuscode: 400,
-          message: "NO role found",
+          message: "NO Permission found",
         });
       }
       res.json({
         status: "Success",
         statusCode: 200,
         message: "Successfully View",
-        Data: role,
+        Data: perm,
       });
     });
 };
 
-exports.updateRoles = (req, res) => {
-  const rl = req.query.id;
-  let role = req.role;
-  role = req.body;
+exports.updatePermission = (req, res) => {
+  const perm = req.query.id;
+  let permission = req.permission;
+  permission = req.body;
 
-  Role.findByIdAndUpdate(
-    { _id: rl },
-    { $set: role },
+  Permission.findByIdAndUpdate(
+    { _id: perm },
+    { $set: permission },
     { new: true, useFindAndModify: false },
-    (err, role) => {
+    (err, perm) => {
       if (err) {
         return res.status(400).json({
           status: "Error",
           statusCode: 400,
-          message: "You are not authorized to update this role",
+          message: "You are not authorized to update this permission",
         });
       }
 
@@ -61,27 +61,27 @@ exports.updateRoles = (req, res) => {
         status: "Success",
         statusCode: 200,
         message: "Successfully Updated",
-        data: role,
+        data: perm,
       });
     }
   );
 };
 
-exports.removeRole = (req, res) => {
-  const rl = req.query.id;
-  Role.findById(rl).remove((err, deletedRole) => {
+exports.removePermission = (req, res) => {
+  const permission = req.query.id;
+  Permission.findById(permission).remove((err, deletedPermission) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
         statusCode: 400,
-        message: "Failed to delete the Role",
+        message: "Failed to delete the Permission",
       });
     }
     res.json({
       status: "Success",
       statusCode: 200,
       message: "Successfully deleted",
-      deletedRole,
+      deletedPermission,
     });
   });
 };
