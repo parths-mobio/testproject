@@ -4,12 +4,11 @@ const formidable = require("formidable");
 const _ = require("lodash");
 const fs = require("fs");
 var jwt = require("jsonwebtoken");
-var expressJwt = require("express-jwt");
 
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
-  form.parse(req, (err, fields, file) => {
+  form.parse(req, async (err, fields, file) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
@@ -59,9 +58,9 @@ exports.signup = (req, res) => {
   });
 };
 
-exports.signin = (req, res) => {
+exports.signin = async (req, res) => {
   const errors = validationResult(req);
-  const { email, password } = req.body;
+  const { email, password } = await req.body;
 
   if (!errors.isEmpty()) {
     return res.status(422).json({
@@ -69,7 +68,7 @@ exports.signin = (req, res) => {
     });
   }
 
-  User.findOne({ email }, (err, user) => {
+  await User.findOne({ email }, (err, user) => {
     if (err || !user) {
       return res.status(400).json({
         status: "Error",
@@ -86,14 +85,11 @@ exports.signin = (req, res) => {
       });
     }
 
-    //create token
     const token = jwt.sign({ _id: user._id }, process.env.SECRET, {
       expiresIn: "24h",
     });
-    //put token in cookie
     res.cookie("token", token);
 
-    //send response to front end
     const { _id, name, email, role } = user;
     return res.json({
       status: "Success",
@@ -105,21 +101,15 @@ exports.signin = (req, res) => {
   });
 };
 
-exports.signout = (req, res) => {
-  res.clearCookie("token");
+exports.signout = async (req, res) => {
+  await res.clearCookie("token");
   res.json({
     message: "User signout successfully",
   });
 };
 
-//protected routes
-// exports.isSignedIn = expressJwt({
-//   secret: process.env.SECRET,
-//   userProperty: "auth",
-// });
-
-exports.isSignedIn = (req, res, next) => {
-  let token = req.headers["x-access-token"];
+exports.isSignedIn = async (req, res, next) => {
+  const token = req.headers["authorization"];
 
   if (!token) {
     return res.status(403).json({
@@ -128,8 +118,10 @@ exports.isSignedIn = (req, res, next) => {
       message: "No Token Provided",
     });
   }
+  const bearer = token.split(" ");
+  const bearerToken = bearer[1];
 
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(bearerToken, process.env.SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({
         Status: "Error",
@@ -143,8 +135,9 @@ exports.isSignedIn = (req, res, next) => {
 };
 
 //custom middlewares
-exports.isAuthenticated = (req, res, next) => {
-  let checker = req.profile && req.auth && req.profile._id == req.auth._id;
+exports.isAuthenticated = async (req, res, next) => {
+  let checker =
+    (await req.profile) && req.auth && req.profile._id == req.auth._id;
   if (!checker) {
     return res.status(403).json({
       Status: "Error",
@@ -155,7 +148,7 @@ exports.isAuthenticated = (req, res, next) => {
   next();
 };
 
-exports.isAdmin = (req, res, next) => {
+exports.isAdmin = async (req, res, next) => {
   if (req.profile.role == "user") {
     return res.status(403).json({
       Status: "Error",

@@ -15,6 +15,7 @@ const app = express();
 const pdfRoute = require("./routes/pdfmake");
 const permissionRoute = require("./routes/userPermission");
 const accessRoute = require("./routes/userAccess");
+const bearerToken = require('express-bearer-token');
 
 //DB Connection
 mongoose
@@ -33,7 +34,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(bearerToken());
 //Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
@@ -46,14 +47,6 @@ app.use("/api",accessRoute);
 
 const port = process.env.PORT || 4000;
 app.use(cors());
-
-app.use(function(req, res, next) {
-  res.header(
-    "Access-Control-Allow-Headers",
-    "x-access-token, Origin, Content-Type, Accept"
-  );
-  next();
-});
 
 app.get("/", (req, res) => {
   res.send("Hello World");

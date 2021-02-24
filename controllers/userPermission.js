@@ -1,26 +1,57 @@
 const Permission = require("../models/userPermission");
+const Access = require("../models/userAccess");
 
-exports.createPermission = (req, res) => {
+// exports.createPermission = (req, res) => {
+//   const permission = new Permission(req.body);
+//   permission.save((err, perm) => {
+//     if (err) {
+//       return res.status(400).json({
+//         status: "Error",
+//         statusCode: 400,
+//         message: "NOT able to save Permission in DB",
+//       });
+//     }
+//     res.json({
+//       status: "Success",
+//       statusCode: 200,
+//       message: "Successfully Created",
+//       Data: perm,
+//     });
+//   });
+// };
+
+exports.createPermission = async (req, res) => {
   const permission = new Permission(req.body);
-  permission.save((err, perm) => {
-    if (err) {
-      return res.status(400).json({
-        status: "Error",
-        statusCode: 400,
-        message: "NOT able to save Permission in DB",
+  const access = req.query.id;
+  return await Permission.create(permission).then((docComment) => {
+    console.log("\n>> Created Comment:\n", docComment);
+
+    return Access.findByIdAndUpdate(
+      access,
+      { $push: { permissions: docComment._id } },
+      { new: true, useFindAndModify: false }
+    )
+      .then(function (dbPermission) {
+        res.json({
+          status: "Success",
+          statusCode: 200,
+          message: "Successfully Created",
+          Data: docComment,
+        });
+      })
+      .catch(function (err) {
+        res.json({
+          status: "Error",
+          statusCode: 400,
+          message: "NOT able to save Permission in DB",
+          msg: err,
+        });
       });
-    }
-    res.json({
-      status: "Success",
-      statusCode: 200,
-      message: "Successfully Created",
-      Data: perm,
-    });
   });
 };
 
-exports.getAllPermissions = (req, res) => {
-Permission.find()
+exports.getAllPermissions = async (req, res) => {
+  await Permission.find()
     .select("-__v")
     .exec((err, perm) => {
       if (err) {
@@ -39,9 +70,9 @@ Permission.find()
     });
 };
 
-exports.updatePermission = (req, res) => {
-  const perm = req.query.id;
-  let permission = req.permission;
+exports.updatePermission = async (req, res) => {
+  const perm = await req.query.id;
+  let permission = await req.permission;
   permission = req.body;
 
   Permission.findByIdAndUpdate(
@@ -67,9 +98,9 @@ exports.updatePermission = (req, res) => {
   );
 };
 
-exports.removePermission = (req, res) => {
+exports.removePermission = async (req, res) => {
   const permission = req.query.id;
-  Permission.findById(permission).remove((err, deletedPermission) => {
+  await Permission.findById(permission).remove((err, deletedPermission) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
@@ -85,4 +116,3 @@ exports.removePermission = (req, res) => {
     });
   });
 };
-

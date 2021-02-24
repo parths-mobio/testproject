@@ -8,11 +8,12 @@ const userAccessSchema = new mongoose.Schema(
       ref: "userRole",
       required: true,
     },
-    permission: {
+    permissions:[ {
       type: ObjectId,
       ref: "userPermission",
-      required: true,
-    },
+     
+    }
+  ]
   },
   { timestamps: true }
 );

@@ -1,6 +1,6 @@
 const Access = require("../models/userAccess");
 
-exports.createAccess = (req, res) => {
+exports.createAccess = async (req, res) => {
   const useraccess = new Access(req.body);
   useraccess.save((err, acces) => {
     if (err) {
@@ -19,11 +19,12 @@ exports.createAccess = (req, res) => {
   });
 };
 
-exports.getAllAccess = (req, res) => {
-  Access.find()
-    .populate("role")
-    .populate("permission")
-    .select("-__v")
+exports.getAllAccess = async(req, res) => {
+  await Access.find()
+    .select("_id")
+    .populate("role", "_id name")
+    .populate("permissions", "_id name")
+    
     .exec((err, access) => {
       if (err) {
         return res.status(400).json({
@@ -36,7 +37,12 @@ exports.getAllAccess = (req, res) => {
         status: "Success",
         statusCode: 200,
         message: "Successfully View",
-        Data: access,
+        // Data: {
+        //   id:access._id,
+        //   role:access.role,
+        //   permissions:access.permissions,
+        // },
+        Data:access
       });
     });
 };
@@ -56,7 +62,7 @@ exports.updateAccess = (req, res) => {
           status: "Error",
           statusCode: 400,
           message: "You are not authorized to update this userAccess",
-          Error:err
+          Error: err,
         });
       }
 
@@ -70,9 +76,9 @@ exports.updateAccess = (req, res) => {
   );
 };
 
-exports.removeAccess = (req, res) => {
+exports.removeAccess = async (req, res) => {
   const access = req.query.id;
-  Access.findById(access).remove((err, deletedAccess) => {
+  await Access.findById(access).remove((err, deletedAccess) => {
     if (err) {
       return res.status(400).json({
         status: "Error",

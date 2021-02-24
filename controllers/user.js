@@ -3,8 +3,8 @@ const formidable = require("formidable");
 const _ = require("lodash");
 const fs = require("fs");
 
-exports.getUserById = (req, res, next, id) => {
-  User.findById(id).exec((err, user) => {
+exports.getUserById = async (req, res, next, id) => {
+  await User.findById(id).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
         status: "Error",
@@ -17,7 +17,7 @@ exports.getUserById = (req, res, next, id) => {
   });
 };
 
-exports.getUser = (req, res) => {
+exports.getUser = async (req, res) => {
   req.profile.salt = undefined;
   req.profile.encry_password = undefined;
   return res.json({
@@ -28,14 +28,14 @@ exports.getUser = (req, res) => {
   });
 };
 
-exports.getAllUsers = (req, res) => {
-  let limit = req.query.limit ? parseInt(req.query.limit) : 5;
-  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
-  let sortOrder = req.query.OrderBy && req.query.OrderBy === "desc" ? -1 : 1;
+exports.getAllUsers = async (req, res) => {
+  let limit = await req.query.limit ? parseInt(req.query.limit) : 5;
+  let sortBy = await req.query.sortBy ? await req.query.sortBy : "_id";
+  let sortOrder = await req.query.OrderBy && await req.query.OrderBy === "desc" ? -1 : 1;
   var usersearch = new RegExp(req.query.name, "i");
   var addresssearch = new RegExp(req.query.address, "i");
   var rolesearch = new RegExp(req.query.role, "i");
-  User.find({ name: usersearch, address: addresssearch, role: rolesearch })
+  await User.find({ name: usersearch, address: addresssearch, role: rolesearch })
     .populate("userAccess")
     .select("-photo")
     .select("-salt")
@@ -112,9 +112,9 @@ exports.updateUser = (req, res) => {
     );
   });
 };
-exports.deleteUser = (req, res) => {
+exports.deleteUser = async (req, res) => {
   const user = req.profile._id;
-  User.findById(user).remove((err, deletedUser) => {
+  await User.findById(user).remove((err, deletedUser) => {
     if (err) {
       return res.status(400).json({
         status: "Error",

@@ -1,7 +1,7 @@
 const Setting = require("../models/setting");
 
-exports.createSetting = (req, res) => {
-  const set = new Setting(req.body);
+exports.createSetting = async (req, res) => {
+  const set = new Setting(await req.body);
   set.save((err, setting) => {
     if (err) {
       return res.status(400).json({
@@ -19,15 +19,16 @@ exports.createSetting = (req, res) => {
   });
 };
 
-exports.getAllSetting = (req, res) => {
+exports.getAllSetting = async (req, res) => {
   var keysearch = new RegExp(req.query.key, "i");
-  let limit = req.query.limit ? parseInt(req.query.limit) : 3;
-  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
-  let sortOrder = req.query.OrderBy && req.query.OrderBy === "desc" ? -1 : 1;
+  let limit = (await req.query.limit) ? parseInt(await req.query.limit) : 3;
+  let sortBy = (await req.query.sortBy) ? await req.query.sortBy : "_id";
+  let sortOrder =
+    (await req.query.OrderBy) && (await req.query.OrderBy) === "desc" ? -1 : 1;
 
   //var keysearch = req.query.key;
 
-  Setting.find({ key: keysearch })
+  await Setting.find({ key: keysearch })
     .select("-_id")
     .select("-__v")
     .limit(limit)
@@ -77,9 +78,9 @@ exports.updateSetting = (req, res) => {
   );
 };
 
-exports.removeSetting = (req, res) => {
-  const set = req.query.id;
-  Setting.findById(set).remove((err, deletedSet) => {
+exports.removeSetting = async (req, res) => {
+  const set = await req.query.id;
+  await Setting.findById(set).remove((err, deletedSet) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
@@ -96,8 +97,8 @@ exports.removeSetting = (req, res) => {
   });
 };
 
-exports.getSettingById = (req, res, next, id) => {
-  Setting.findById(id).exec((err, set) => {
+exports.getSettingById = async (req, res, next, id) => {
+  await Setting.findById(id).exec((err, set) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
@@ -110,7 +111,7 @@ exports.getSettingById = (req, res, next, id) => {
   });
 };
 
-exports.getSetting = (req, res) => {
+exports.getSetting = async (req, res) => {
   return res.json({
     status: "Success",
     statusCode: 200,

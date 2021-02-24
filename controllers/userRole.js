@@ -1,6 +1,6 @@
 const Role = require("../models/userRole");
 
-exports.createRole = (req, res) => {
+exports.createRole = async (req, res) => {
   const role = new Role(req.body);
   role.save((err, role) => {
     if (err) {
@@ -19,8 +19,8 @@ exports.createRole = (req, res) => {
   });
 };
 
-exports.getAllRoles = (req, res) => {
-Role.find()
+exports.getAllRoles = async(req, res) => {
+await Role.find()
     .select("-__v")
     .exec((err, role) => {
       if (err) {
@@ -67,9 +67,9 @@ exports.updateRoles = (req, res) => {
   );
 };
 
-exports.removeRole = (req, res) => {
+exports.removeRole = async (req, res) => {
   const rl = req.query.id;
-  Role.findById(rl).remove((err, deletedRole) => {
+  await Role.findById(rl).remove((err, deletedRole) => {
     if (err) {
       return res.status(400).json({
         status: "Error",
