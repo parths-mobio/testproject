@@ -162,17 +162,15 @@ exports.isAuthenticated = async (req, res, next) => {
 // };
 
 exports.isSuperAdmin = async (req, res, next) => {
-  const userId = req.query.id;
+  const userId = req.params.id;
   User.findById(userId).exec((err, user) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
-  
-
     Role.find(
       {
-        _id: { $in: user.roles }
+        _id: { $in: user.role },
       },
       (err, roles) => {
         if (err) {
@@ -186,11 +184,13 @@ exports.isSuperAdmin = async (req, res, next) => {
             return;
           }
         }
-
-        res.status(403).send({ message: "Require Admin Role!" });
+        res.status(403).json({
+          Status: "Error",
+          statusCode: 403,
+          message: "Require SuperAdmin Role!",
+        });
         return;
       }
     );
   });
 };
-

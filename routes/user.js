@@ -8,12 +8,12 @@ const {
   getAllUsers,
   deleteUser,
 } = require("../controllers/user");
-const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
+const { isSignedIn, isAuthenticated, isSuperAdmin } = require("../controllers/auth");
 
 router.param("userId", getUserById);
 
 router.get("/user/view/:userId", isSignedIn, isAuthenticated, getUser);
-router.get("/user", isSignedIn, getAllUsers);
+router.get("/user/:id", isSignedIn, isSuperAdmin,getAllUsers);
 router.put("/user/:userId", isSignedIn, updateUser);
 
 router.delete("/user/:userId", isSignedIn, deleteUser);

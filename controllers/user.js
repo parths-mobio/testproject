@@ -29,17 +29,18 @@ exports.getUser = async (req, res) => {
 };
 
 exports.getAllUsers = async (req, res) => {
-  let limit = await req.query.limit ? parseInt(req.query.limit) : 5;
+  let limit = await req.query.limit ? parseInt(req.query.limit) : 4;
   let sortBy = await req.query.sortBy ? await req.query.sortBy : "_id";
   let sortOrder = await req.query.OrderBy && await req.query.OrderBy === "desc" ? -1 : 1;
   var usersearch = new RegExp(req.query.name, "i");
   var addresssearch = new RegExp(req.query.address, "i");
-  var rolesearch = new RegExp(req.query.role, "i");
-  await User.find({ name: usersearch, address: addresssearch, role: rolesearch })
-    .populate("userAccess")
+  
+  await User.find({ name: usersearch, address: addresssearch })
+    .populate("role","_id name")
     .select("-photo")
     .select("-salt")
     .select("-encry_password")
+    .select("-__v")
     .sort([[sortBy, sortOrder]])
     .limit(limit)
     .exec((err, users) => {

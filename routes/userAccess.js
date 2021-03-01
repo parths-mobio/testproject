@@ -7,7 +7,7 @@ const {
   removeAccess,
 } = require("../controllers/userAccess");
 
-const { isSignedIn } = require("../controllers/auth");
+const { isSignedIn, isSuperAdmin } = require("../controllers/auth");
 
 router.get("/access/viewall", isSignedIn, getAllAccess);
 

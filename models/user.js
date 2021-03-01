@@ -38,20 +38,16 @@ var userSchema = new mongoose.Schema(
       required: true,
     },
     salt: String,
-    // role: {
-    //   type: ObjectId,
-    //   ref: "UserRole",
-    //   required: true,
-    // }
     role: {
-      type: String,
-      default: "user",
-    },
-    userAccess: {
       type: ObjectId,
-      ref: "userAccess",
+      ref: "userRole",
       required: true,
     },
+    // role: {
+    //   type: String,
+    //   default: "user",
+    // },
+   
     photo: {
       data: Buffer,
       contentType: String
