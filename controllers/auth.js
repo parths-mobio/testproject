@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const Access = require("../models/userAccess");
+const Role = require("../models/userRole");
 const { validationResult, check } = require("express-validator");
 const formidable = require("formidable");
 const _ = require("lodash");
@@ -148,13 +150,47 @@ exports.isAuthenticated = async (req, res, next) => {
   next();
 };
 
-exports.isAdmin = async (req, res, next) => {
-  if (req.profile.role == "user") {
-    return res.status(403).json({
-      Status: "Error",
-      statusCode: 403,
-      error: "You are not ADMIN, Access denied",
-    });
-  }
-  next();
+// exports.isAdmin = async (req, res, next) => {
+//   if (req.profile.role == "user") {
+//     return res.status(403).json({
+//       Status: "Error",
+//       statusCode: 403,
+//       error: "You are not ADMIN, Access denied",
+//     });
+//   }
+//   next();
+// };
+
+exports.isSuperAdmin = async (req, res, next) => {
+  const userId = req.query.id;
+  User.findById(userId).exec((err, user) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+  
+
+    Role.find(
+      {
+        _id: { $in: user.roles }
+      },
+      (err, roles) => {
+        if (err) {
+          res.status(500).send({ message: err });
+          return;
+        }
+
+        for (let i = 0; i < roles.length; i++) {
+          if (roles[i].name === "superadmin") {
+            next();
+            return;
+          }
+        }
+
+        res.status(403).send({ message: "Require Admin Role!" });
+        return;
+      }
+    );
+  });
 };
+
