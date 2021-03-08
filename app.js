@@ -11,11 +11,31 @@ const itemRoutes = require("./routes/routes");
 const userRoutes = require("./routes/user");
 const settingRoutes = require("./routes/setting");
 const roleRoutes = require("./routes/userRole");
+const multilangRoutes = require("./routes/multilang");
 const app = express();
 const pdfRoute = require("./routes/pdfmake");
 const permissionRoute = require("./routes/userPermission");
 const accessRoute = require("./routes/userAccess");
+
 const bearerToken = require('express-bearer-token');
+
+// var i18n = require('i18n');
+// const { I18n } = require("i18n");
+
+// i18n.configure({
+//   // setup some locales - other locales default to en silently
+//   locales:['en', 'iw'],
+
+//   // where to store json files - defaults to './locales' relative to modules directory
+//   directory: __dirname + '/locales',
+  
+//   defaultLocale: 'en',
+  
+//   // sets a custom cookie name to parse locale settings from  - defaults to NULL
+//   cookie: 'lang',
+// });
+
+// app.use(I18n);
 
 //DB Connection
 mongoose
@@ -44,6 +64,8 @@ app.use("/api",settingRoutes);
 app.use("/api",roleRoutes);
 app.use("/api",permissionRoute);
 app.use("/api",accessRoute);
+app.use("/api",multilangRoutes);
+
 
 const port = process.env.PORT || 4000;
 app.use(cors());

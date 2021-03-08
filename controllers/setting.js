@@ -1,8 +1,12 @@
 const Setting = require("../models/setting");
+const translate = require('translate');
 
 exports.createSetting = async (req, res) => {
   const set = new Setting(await req.body);
-  set.save((err, setting) => {
+  const translateTo = await req.body.lang;
+  translate.engine = 'libre';
+	const sets = await translate(set, translateTo);
+  sets.save((err, setting) => {
     if (err) {
       return res.status(400).json({
         status: "Error",

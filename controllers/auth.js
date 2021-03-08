@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Access = require("../models/userAccess");
 const Role = require("../models/userRole");
+const Permission = require("../models/userPermission");
 const { validationResult, check } = require("express-validator");
 const formidable = require("formidable");
 const _ = require("lodash");
@@ -131,7 +132,8 @@ exports.isSignedIn = async (req, res, next) => {
         message: "Invalid Token",
       });
     }
-    //req.userId = decoded.id;
+    req.userId = decoded._id;
+
     next();
   });
 };
@@ -150,20 +152,9 @@ exports.isAuthenticated = async (req, res, next) => {
   next();
 };
 
-// exports.isAdmin = async (req, res, next) => {
-//   if (req.profile.role == "user") {
-//     return res.status(403).json({
-//       Status: "Error",
-//       statusCode: 403,
-//       error: "You are not ADMIN, Access denied",
-//     });
-//   }
-//   next();
-// };
-
 exports.isSuperAdmin = async (req, res, next) => {
-  const userId = req.params.id;
-  User.findById(userId).exec((err, user) => {
+  let user_id = req.userId;
+  User.findById(user_id).exec((err, user) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
@@ -180,6 +171,46 @@ exports.isSuperAdmin = async (req, res, next) => {
 
         for (let i = 0; i < roles.length; i++) {
           if (roles[i].name === "superadmin") {
+            Access.find(
+              {
+                role: { $in: roles[0]._id },
+              },
+
+              (err, access) => {
+                if (err) {
+                  res.status(500).send({ message: err });
+                  return;
+                }
+                console.log(access);
+                for (let j = 0; j < access.length; j++) {
+                  const myid = access[j].permissions[0];
+                  Permission.find(
+                    {
+                      _id: { $in: myid },
+                    },
+                    (err, perm) => {
+                      if (err) {
+                        res.status(500).send({ message: err });
+                        return;
+                      }
+                      console.log(perm);
+                      for (let k = 0; k < perm.length; k++) {
+                        if (perm[k].name === "allmodules") {
+                          console.log("successfull");
+                        } else {
+                          res.status(403).json({
+                            Status: "Error",
+                            statusCode: 403,
+                            message: "Permission not given",
+                          });
+                        }
+                      }
+                    }
+                  );
+                }
+              }
+            );
+
             next();
             return;
           }
@@ -194,3 +225,37 @@ exports.isSuperAdmin = async (req, res, next) => {
     );
   });
 };
+
+// exports.isAdmin = async (req, res, next) => {
+//   const userId = req.params.id;
+//   User.findById(userId).exec((err, user) => {
+//     if (err) {
+//       res.status(500).send({ message: err });
+//       return;
+//     }
+//     Role.find(
+//       {
+//         _id: { $in: user.role },
+//       },
+//       (err, roles) => {
+//         if (err) {
+//           res.status(500).send({ message: err });
+//           return;
+//         }
+
+//         for (let i = 0; i < roles.length; i++) {
+//           if (roles[i].name === "superadmin" || "admin") {
+//             next();
+//             return;
+//           }
+//         }
+//         res.status(403).json({
+//           Status: "Error",
+//           statusCode: 403,
+//           message: "Require Admin Role!",
+//         });
+//         return;
+//       }
+//     );
+//   });
+// };

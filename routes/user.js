@@ -13,7 +13,7 @@ const { isSignedIn, isAuthenticated, isSuperAdmin } = require("../controllers/au
 router.param("userId", getUserById);
 
 router.get("/user/view/:userId", isSignedIn, isAuthenticated, getUser);
-router.get("/user/:id", isSignedIn, isSuperAdmin,getAllUsers);
+router.get("/user/viewall", isSignedIn, isSuperAdmin,getAllUsers);
 router.put("/user/:userId", isSignedIn, updateUser);
 
 router.delete("/user/:userId", isSignedIn, deleteUser);
