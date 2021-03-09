@@ -16,26 +16,9 @@ const app = express();
 const pdfRoute = require("./routes/pdfmake");
 const permissionRoute = require("./routes/userPermission");
 const accessRoute = require("./routes/userAccess");
-
+var i18n = require('./i18n');
 const bearerToken = require('express-bearer-token');
 
-// var i18n = require('i18n');
-// const { I18n } = require("i18n");
-
-// i18n.configure({
-//   // setup some locales - other locales default to en silently
-//   locales:['en', 'iw'],
-
-//   // where to store json files - defaults to './locales' relative to modules directory
-//   directory: __dirname + '/locales',
-  
-//   defaultLocale: 'en',
-  
-//   // sets a custom cookie name to parse locale settings from  - defaults to NULL
-//   cookie: 'lang',
-// });
-
-// app.use(I18n);
 
 //DB Connection
 mongoose
@@ -55,6 +38,7 @@ app.use(cookieParser());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bearerToken());
+//app.use(i18n);
 //Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
