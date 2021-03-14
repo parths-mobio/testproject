@@ -7,6 +7,7 @@ const formidable = require("formidable");
 const _ = require("lodash");
 const fs = require("fs");
 var jwt = require("jsonwebtoken");
+const localizify = require('localizify');
 
 exports.signup = async (req, res) => {
   let form = new formidable.IncomingForm();
@@ -104,6 +105,14 @@ exports.signin = async (req, res) => {
   });
 };
 
+// exports.multilang = async (req, res, next) => {
+//   const lang =
+//     localizify.detectLocale(req.headers["accept-language"]) || "fr";
+//   localizify.setLocale(lang);
+//   console.log(lang);
+//   next();
+// };
+
 exports.signout = async (req, res) => {
   await res.clearCookie("token");
   res.json({
@@ -181,7 +190,7 @@ exports.isSuperAdmin = async (req, res, next) => {
                   res.status(500).send({ message: err });
                   return;
                 }
-                console.log(access);
+                //console.log(access);
                 for (let j = 0; j < access.length; j++) {
                   const myid = access[j].permissions[0];
                   Permission.find(
@@ -193,10 +202,10 @@ exports.isSuperAdmin = async (req, res, next) => {
                         res.status(500).send({ message: err });
                         return;
                       }
-                      console.log(perm);
+                      //console.log(perm);
                       for (let k = 0; k < perm.length; k++) {
                         if (perm[k].name === "allmodules") {
-                          console.log("successfull");
+                         // console.log("successfull");
                         } else {
                           res.status(403).json({
                             Status: "Error",

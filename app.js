@@ -1,3 +1,4 @@
+
 const express = require("express");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
@@ -16,7 +17,7 @@ const app = express();
 const pdfRoute = require("./routes/pdfmake");
 const permissionRoute = require("./routes/userPermission");
 const accessRoute = require("./routes/userAccess");
-var i18n = require('./i18n');
+
 const bearerToken = require('express-bearer-token');
 
 
@@ -32,13 +33,14 @@ mongoose
   });
 
 //Middlewares
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bearerToken());
-//app.use(i18n);
+
 //Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);

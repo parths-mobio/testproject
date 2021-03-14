@@ -13,7 +13,7 @@ const { isSignedIn,isSuperAdmin } = require("../controllers/auth");
 
 router.get("/setting/view", isSignedIn, getAllSetting);
 
-router.post("/setting/create", isSignedIn,isSuperAdmin, createSetting);
+router.post("/setting/create", isSignedIn,isSuperAdmin,createSetting);
 
 router.put("/setting/update", isSignedIn,isSuperAdmin, updateSetting);
 

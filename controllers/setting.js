@@ -1,12 +1,34 @@
 const Setting = require("../models/setting");
-const translate = require('translate');
+const translate = require("translate");
 
 exports.createSetting = async (req, res) => {
-  const set = new Setting(await req.body);
-  // const translateTo = "ru";
-  // translate.engine = 'libre';
-	 //const sets = await translate(set, translateTo);
+  const ln = req.headers["ln"] || "en";
+  let fr_value;
+  let en_value;
+  let fr_key;
+  let en_key;
+  const value = await req.body.value;
+  const key = await req.body.key;
+  translate.engine = "libre";
+  if (ln === "en") {
+    fr_value = await translate(value, "fr");
+    fr_key = await translate(key, "fr");
+  } else {
+    en_value = await translate(value, { from: "fr", to: "en" });
+    en_key = await translate(key, { from: "fr", to: "en" });
+  }
+
+  const set = new Setting({
+    key_fr: fr_key,
+    key_en: en_key,
+    value_fr: fr_value,
+    value_en: en_value,
+  });
+
+  console.log("multi....", set);
   set.save((err, setting) => {
+    console.log(setting);
+    console.log(err);
     if (err) {
       return res.status(400).json({
         status: "Error",
@@ -24,15 +46,19 @@ exports.createSetting = async (req, res) => {
 };
 
 exports.getAllSetting = async (req, res) => {
-  var keysearch = new RegExp(req.query.key, "i");
+  const ln = req.headers["ln"] || "en";
+  if (ln === "en") {
+    var keysearch_en = new RegExp(req.query.key, "i");
+  } else {
+    var keysearch_fr = new RegExp(req.query.key, "i");
+  }
+
   let limit = (await req.query.limit) ? parseInt(await req.query.limit) : 3;
   let sortBy = (await req.query.sortBy) ? await req.query.sortBy : "_id";
   let sortOrder =
     (await req.query.OrderBy) && (await req.query.OrderBy) === "desc" ? -1 : 1;
 
-  //var keysearch = req.query.key;
-
-  await Setting.find({ key: keysearch })
+  await Setting.find({ key_en: keysearch_en, key_fr: keysearch_fr })
     .select("-_id")
     .select("-__v")
     .limit(limit)
