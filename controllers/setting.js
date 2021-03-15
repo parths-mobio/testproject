@@ -24,24 +24,37 @@ exports.createSetting = async (req, res) => {
     value_fr: fr_value,
     value_en: en_value,
   });
-
-  console.log("multi....", set);
   set.save((err, setting) => {
-    console.log(setting);
-    console.log(err);
-    if (err) {
-      return res.status(400).json({
-        status: "Error",
-        statusCode: 400,
-        message: "NOT able to save settingData in DB",
+    if (ln === "en") {
+      if (err) {
+        return res.status(400).json({
+          status: "Error",
+          statusCode: 400,
+          message: "NOT able to save settingData in DB",
+        });
+      }
+      res.json({
+        status: "Success",
+        statusCode: 200,
+        message: "Successfully Created",
+        Data: setting,
+      });
+    } else {
+      if (err) {
+        return res.status(400).json({
+          status: "Erreur",
+          statusCode: 400,
+          message:
+            "Ne pas pouvoir enregistrer le réglage des données dans la base de données",
+        });
+      }
+      res.json({
+        status: "succès",
+        statusCode: 200,
+        message: "Créé avec succès",
+        Data: setting,
       });
     }
-    res.json({
-      status: "Success",
-      statusCode: 200,
-      message: "Successfully Created",
-      Data: setting,
-    });
   });
 };
 
@@ -64,19 +77,35 @@ exports.getAllSetting = async (req, res) => {
     .limit(limit)
     .sort([[sortBy, sortOrder]])
     .exec((err, setting) => {
-      if (err) {
-        return res.status(400).json({
-          status: "Error",
-          statuscode: 400,
-          message: "NO categories found",
+      if (ln === "en") {
+        if (err) {
+          return res.status(400).json({
+            status: "Error",
+            statuscode: 400,
+            message: "NO Data found",
+          });
+        }
+        res.json({
+          status: "Success",
+          statusCode: 200,
+          message: "Successfully View",
+          Data: setting,
+        });
+      } else {
+        if (err) {
+          return res.status(400).json({
+            status: "Erreur",
+            statuscode: 400,
+            message: "Aucune donnée trouvée",
+          });
+        }
+        res.json({
+          status: "succès",
+          statusCode: 200,
+          message: "Avec succès",
+          Data: setting,
         });
       }
-      res.json({
-        status: "Success",
-        statusCode: 200,
-        message: "Successfully View",
-        Data: setting,
-      });
     });
 };
 
